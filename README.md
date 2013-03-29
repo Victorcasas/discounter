@@ -47,12 +47,12 @@ Well it's pretty simple, first things first, we need to install it. Since I didn
 * Local install:
   This version you need to clone the repo, build and install the gem:
 
-  ```
-    git clone https://alvarola@bitbucket.org/alvarola/discounter.git
-    cd discounter
-    gem build discounter.gemspec
-    gem install ./discounter.X-X-X.gem
-  ```
+```
+  git clone https://alvarola@bitbucket.org/alvarola/discounter.git
+  cd discounter
+  gem build discounter.gemspec
+  gem install ./discounter.X-X-X.gem
+```
 
   NOTE: You should replace X-X-X with whatever version the ```gem build``` command reported.
 
