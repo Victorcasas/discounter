@@ -41,8 +41,9 @@ Well it's pretty simple, first things first, we need to install it. Since I didn
 
 * Using Bundler:
   Bundler is great handling git gems, it only takes this to install it:
-
+```
   gem 'discounter', git: 'https://alvarola@bitbucket.org/alvarola/discounter.git'
+```
 
 * Local install:
   This version you need to clone the repo, build and install the gem:
