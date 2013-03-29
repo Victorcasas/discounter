@@ -1,0 +1,5 @@
+require 'discounter/discount_rule'
+require 'discounter/percentaje_discount_rule'
+require 'discounter/item_discount_rule'
+require 'discounter/item'
+require 'discounter/checkout'
