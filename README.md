@@ -37,7 +37,24 @@ Total price expected: £73.76
 
 #How do I use it?
 
-Well it's pretty simple, first things first:
+Well it's pretty simple, first things first, we need to install it. Since I didn't uploaded it in RubyGems (and probably wont do it anytime soon), you have 2 options:
+
+* Using Bundler:
+  Bundler is great handling git gems, it only takes this to install it:
+
+  gem 'discounter', git: 'https://alvarola@bitbucket.org/alvarola/discounter.git'
+
+* Local install:
+  This version you need to clone the repo, build and install the gem:
+
+  ```bash
+    git clone https://alvarola@bitbucket.org/alvarola/discounter.git
+    cd discounter
+    gem build discounter.gemspec
+    gem install ./discounter.X-X-X.gem
+  ```
+
+  NOTE: You should replace X-X-X with whatever version the ```gem build``` command reported.
 
 ```ruby
   require 'discounter'
@@ -47,22 +64,22 @@ Now we have available a couple classes in order to work with the checkout line:
 
 * Item: It's basically a product, it has a code, name and price
 * DiscountRules: The godmother of my strategy DiscountRule hirearchy.
-** ItemDiscountRules: A subclass of DiscountRules that allows discount in a certain product code when there are more than X of them in the basket.
-** PercentajeDiscountRules: Another DiscountRules subclass witch works discounting a percentaje of the total when it surpass an X amount.
+  * ItemDiscountRules: A subclass of DiscountRules that allows discount in a certain product code when there are more than X of them in the basket.
+  * PercentajeDiscountRules: Another DiscountRules subclass witch works discounting a percentaje of the total when it surpass an X amount.
 * Checkout: The machin that handles scanning products and retrieving the total amount. It should be instanciated with the Discount Rules.
 
 And here it's an example:
 
 ```ruby
   promotional_rules = []
-  promotional_rules << ItemDiscountRules.new("001", 2, 0.75)
-  promotional_rules << PercentajeDiscountRules.new(60, 10)
+  promotional_rules << Discounter::ItemDiscountRules.new("001", 2, 0.75)
+  promotional_rules << Discounter::PercentajeDiscountRules.new(60, 10)
 
-  co = Checkout.new(promotional_rules)
+  co = Discounter::Checkout.new(promotional_rules)
 
-  co.scan Item.new("001", "Item name 1", 20.25)
-  co.scan Item.new("001", "Item name 1", 20.25)
-  co.scan Item.new("002", "Item name 2", 120.75)
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("002", "Item name 2", 120.75)
 
   price = co.total
 ```
