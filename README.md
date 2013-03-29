@@ -47,7 +47,7 @@ Well it's pretty simple, first things first, we need to install it. Since I didn
 * Local install:
   This version you need to clone the repo, build and install the gem:
 
-  ```bash
+  ```
     git clone https://alvarola@bitbucket.org/alvarola/discounter.git
     cd discounter
     gem build discounter.gemspec
