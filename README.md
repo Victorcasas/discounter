@@ -1,11 +1,32 @@
 #Problem
 Our client is an online marketplace, here is a sample of some of the products available on our site:
 
-Product code  | Name                   | Price
-----------------------------------------------------------
-001           | Lavender heart         | £9.25
-002           | Personalised cufflinks | £45.00
-003           | Kids T-shirt           | £19.95
+<table>
+  <thead>
+    <tr>
+      <th>Product code</th>
+      <th>Name</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>001</td>
+      <td>Lavender heard</td>
+      <td>9.25</td>
+    </tr>
+    <tr>
+      <td>002</td>
+      <td>Personalised cufflinks</td>
+      <td>45.00</td>
+    </tr>
+    <tr>
+      <td>003</td>
+      <td>Kids T-shirt</td>
+      <td>19.95</td>
+    </tr>
+  </tbody>
+</table>
 
 Our marketing team want to offer promotions as an incentive for our customers to purchase these items.
 
