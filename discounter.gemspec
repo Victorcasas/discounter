@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'discounter'
-  s.version     = '0.0.1'
+  s.version     = '0.0.2'
   s.date        = '2013-03-29'
   s.summary     = "A simple checkout line with pluggable discounts"
   s.description = "This gem has no particular intention other than allowing a checkout line to have pluggable discounts"
