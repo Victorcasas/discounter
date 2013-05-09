@@ -64,17 +64,15 @@ Well it's pretty simple, first things first, we need to install it. Since I didn
 Now we have available a couple classes in order to work with the checkout line:
 
 * Item: It's basically a product, it has a code, name and price
-* DiscountRule: The godmother of my strategy DiscountRule hirearchy.
-  * ItemDiscountRule: A subclass of DiscountRules that allows discount in a certain product code when there are more than X of them in the basket.
-  * PercentajeDiscountRule: Another DiscountRules subclass witch works discounting a percentaje of the total when it surpass an X amount.
+* DiscountBuilder: This class contains the recepies to build discounting rules.
 * Checkout: The machin that handles scanning products and retrieving the total amount. It should be instanciated with the Discount Rules.
 
 And here it's an example:
 
 ```ruby
   promotional_rules = []
-  promotional_rules << Discounter::ItemDiscountRule.new("001", 2, 0.75)
-  promotional_rules << Discounter::PercentajeDiscountRule.new(60, 10)
+  promotional_rules << Discounter::DiscountBuilder.item_rule("001", 2, 0.75)
+  promotional_rules << Discounter::DiscountBuilder.percentaje_rule(60, 10)
 
   co = Discounter::Checkout.new(promotional_rules)
 
