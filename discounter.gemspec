@@ -8,6 +8,5 @@ Gem::Specification.new do |s|
   s.email       = 'alvarola@gmail.com'
   s.files       = Dir.glob("lib/**/*") + %w(LICENSE README.md)
   s.require_path = 'lib'
-  s.homepage    =
-    'http://rubygems.org/gems/hola'
+  s.homepage    =  'http://rubygems.org/gems/hola'
 end
