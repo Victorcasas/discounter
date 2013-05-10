@@ -64,15 +64,16 @@ Well it's pretty simple, first things first, we need to install it. Since I didn
 Now we have available a couple classes in order to work with the checkout line:
 
 * Item: It's basically a product, it has a code, name and price
-* DiscountBuilder: This class contains the recepies to build discounting rules.
+* DiscountRules: This class contains the recepies to build discounting rules and also build custom ones.
+*   You can select one and give them options, and in order to extend, just create a new method.
 * Checkout: The machin that handles scanning products and retrieving the total amount. It should be instanciated with the Discount Rules.
 
 And here it's an example:
 
 ```ruby
   promotional_rules = []
-  promotional_rules << Discounter::DiscountBuilder.item_rule("001", 2, 0.75)
-  promotional_rules << Discounter::DiscountBuilder.percentaje_rule(60, 10)
+  promotional_rules << Discounter::DiscountRules.select(:item, { code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << Discounter::DiscountRules.select(:percentaje, { amount: 60, discount: 10 })
 
   co = Discounter::Checkout.new(promotional_rules)
 
@@ -82,3 +83,27 @@ And here it's an example:
 
   price = co.total
 ```
+
+If you want to use another discount but dont want to make it permanent, then:
+
+```ruby
+  promotional_rules = []
+
+  # Everyday discounts that you don't wanna retype every time
+  promotional_rules << Discounter::DiscountRules.select(:item, { code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << Discounter::DiscountRules.select(:percentaje, { amount: 60, discount: 10 })
+
+  # This is a custom discount
+  promotional_rules << Discounter::DiscountRules.select(:custom, { max: 10 }) do |checkout, count, options|
+    (checkout.items.count > options[:max]) ? 10 : 0
+  end
+
+  co = Discounter::Checkout.new(promotional_rules)
+
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("002", "Item name 2", 120.75)
+
+  price = co.total
+```
+
