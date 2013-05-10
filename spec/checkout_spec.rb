@@ -4,7 +4,7 @@ describe "Checkout" do
   it "should require promotion rules on create" do
     proc { Discounter::Checkout.new }.must_raise ArgumentError
 
-    promotion_rules = [ Discounter::DiscountBuilder.simple_rule, Discounter::DiscountBuilder.simple_rule]
+    promotion_rules = [ Discounter::DiscountRules.select(:simple), Discounter::DiscountRules.select(:simple)]
     checkout = Discounter::Checkout.new promotion_rules
   end
 
@@ -37,15 +37,16 @@ describe "Checkout" do
 
     before do
       @promotional_rules = []
+      @percentaje_discount = { amount: 60.00, discount: 10.00 }
 
-      @promotional_rules << Discounter::DiscountBuilder.item_rule("001", 2, 0.75)
-      @promotional_rules << Discounter::DiscountBuilder.percentaje_rule(60.00, 10.00)
+      @promotional_rules << Discounter::DiscountRules.select(:item, { code: "001", limit: 2, discount: 0.75 })
+      @promotional_rules << Discounter::DiscountRules.select(:percentaje, @percentaje_discount)
 
       @checkout = Discounter::Checkout.new @promotional_rules
     end
 
     it "should make a 10% discount from total purchase if spended over 60 pounds" do
-      checkout = Discounter::Checkout.new([ Discounter::DiscountBuilder.percentaje_rule(60.00, 10.00) ])
+      checkout = Discounter::Checkout.new([ Discounter::DiscountRules.select(:percentaje, @percentaje_discount) ])
 
       checkout.scan Discounter::Item.new("001", "Lavender heart", 61.50)
 
@@ -53,7 +54,7 @@ describe "Checkout" do
     end
 
     it "should drop price by factor on multiple items" do
-      checkout = Discounter::Checkout.new([ Discounter::DiscountBuilder.item_rule("001", 2, 0.5) ])
+      checkout = Discounter::Checkout.new([ Discounter::DiscountRules.select(:item, { code: "001", limit: 2, discount: 0.5 }) ])
 
       checkout.scan Discounter::Item.new("001", "Lavender heard", 10)
       checkout.scan Discounter::Item.new("001", "Lavender heard", 10)
