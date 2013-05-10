@@ -64,16 +64,19 @@ Well it's pretty simple, first things first, we need to install it. Since I didn
 Now we have available a couple classes in order to work with the checkout line:
 
 * Item: It's basically a product, it has a code, name and price
-* DiscountRules: This class contains the recepies to build discounting rules and also build custom ones.
-*   You can select one and give them options, and in order to extend, just create a new method.
+* DiscountRules: This class contains the recepies to build discounting rules and also build custom ones. You can select one and give them options, and in order to extend, just create a new method or extend the class. To keep public interface clean, the discounting methods should be protected visibility (visible to other classes but not the public).
 * Checkout: The machin that handles scanning products and retrieving the total amount. It should be instanciated with the Discount Rules.
 
 And here it's an example:
 
 ```ruby
   promotional_rules = []
-  promotional_rules << Discounter::DiscountRules.select(:item, { code: "001", limit: 2, discount: 0.75 })
-  promotional_rules << Discounter::DiscountRules.select(:percentaje, { amount: 60, discount: 10 })
+
+  @discount_rules = Discounter::DiscountRules.new
+
+  # Everyday discounts that you don't wanna retype every time
+  promotional_rules << @discount_rules.select(:item, { code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << @discount_rules.select(:percentaje, { amount: 60, discount: 10 })
 
   co = Discounter::Checkout.new(promotional_rules)
 
@@ -84,17 +87,19 @@ And here it's an example:
   price = co.total
 ```
 
-If you want to use another discount but dont want to make it permanent, then:
+If you want to build your own discount but dont want to make it permanent, then use a custom one!
 
 ```ruby
   promotional_rules = []
 
-  # Everyday discounts that you don't wanna retype every time
-  promotional_rules << Discounter::DiscountRules.select(:item, { code: "001", limit: 2, discount: 0.75 })
-  promotional_rules << Discounter::DiscountRules.select(:percentaje, { amount: 60, discount: 10 })
+  @discount_rules = Discounter::DiscountRules.new
+
+  # Everyday discounts that you don't wanna retype every time. Keep it DRY!
+  promotional_rules << @discount_rules.select(:item, { code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << @discount_rules.select(:percentaje, { amount: 60, discount: 10 })
 
   # This is a custom discount
-  promotional_rules << Discounter::DiscountRules.select(:custom, { max: 10 }) do |checkout, count, options|
+  promotional_rules << @discount_rules.select(:custom, { max: 2 }) do |checkout, count, options|
     (checkout.items.count > options[:max]) ? 10 : 0
   end
 
@@ -107,3 +112,79 @@ If you want to use another discount but dont want to make it permanent, then:
   price = co.total
 ```
 
+Now, how can I extend the DiscountRules? Well you have two options:
+
+1) Adding new protected methods to the DiscountRules (maybe in a module?)
+
+```ruby
+  promotional_rules = []
+
+  @discount_rules = Discounter::DiscountRules.new
+
+  # Everyday discounts that you don't wanna retype every time
+  promotional_rules << @discount_rules.select(:item, { code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << @discount_rules.select(:percentaje, { amount: 60, discount: 10 })
+
+  # This is a custom discount
+  promotional_rules << @discount_rules.select(:custom, { max: 2 }) do |checkout, count, options|
+    (checkout.items.count > options[:max]) ? 10 : 0
+  end
+  
+  # A little monkey patching
+  class DiscountRules
+   protected
+   
+   def extended
+     Proc.new { |checkout, count, options| (options[:is_it_enabled]) ? 100 : 0 }
+   end
+  end
+  
+  # There, now you have a new rule!
+  promotional_rules << @discount_rules.select(:extended, { is_it_enabled: true })
+
+  co = Discounter::Checkout.new(promotional_rules)
+
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("002", "Item name 2", 120.75)
+
+  price = co.total
+```
+
+2) Extending the DiscountRules class and let the new child class implement the protected methods (for object purist)
+
+```ruby
+  promotional_rules = []
+  
+  # More monkey patching on the way
+  class ExtendedDiscountRules < Discounter::DiscountRules
+    protected
+    
+    def extended
+      Proc.new { |checkout, count, options| (options[:is_it_enabled]) ? 100 : 0 }
+    end
+  end
+  
+  # Now we have an instance of the new extended class
+  @discount_rules = ExtendedDiscountRules.new
+
+  # Everyday discounts that you don't wanna retype every time
+  promotional_rules << @discount_rules.select(:item, { code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << @discount_rules.select(:percentaje, { amount: 60, discount: 10 })
+
+  # This is a custom discount
+  promotional_rules << @discount_rules.select(:custom, { max: 10 }) do |checkout, count, options|
+    (checkout.items.count > options[:max]) ? 10 : 0
+  end
+  
+  # Le new discount rule
+  promotional_rules << @discount_rules.select(:extended, { is_it_enabled: true })
+
+  co = Discounter::Checkout.new(promotional_rules)
+
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("001", "Item name 1", 20.25)
+  co.scan Discounter::Item.new("002", "Item name 2", 120.75)
+
+  price = co.total
+```
