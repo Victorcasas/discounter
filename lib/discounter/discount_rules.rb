@@ -7,6 +7,8 @@ module Discounter
   class DiscountRules
     class << self
       def select(rule, options = {}, &block)
+        raise ArgumentError.new("There is no such discounter as #{rule}") unless self.respond_to?(rule) && self.protected_methods.include?(rule)
+
         if block_given?
           Proc.new { |checkout, count| self.send(rule, block).call(checkout, count, options) }
         else
