@@ -12,7 +12,7 @@ module Discounter
     end
 
     def total
-      @rules.inject(subtotal) { |count, discount_rule| count - discount_rule.call(self, count) }.round(2)
+      @rules.inject(subtotal) { |count, discount_rule| count - discount_rule.call({ checkout: self, count: count }) }.round(2)
     end
 
     private
