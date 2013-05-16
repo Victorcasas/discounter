@@ -42,11 +42,11 @@ describe "Checkout" do
     let(:discount_rules) { DiscountRules.new }
     
     let(:item_discount) do
-      discount_rules.item({ configuration: { code: "001", limit: 2, discount: 0.75 } })
+      discount_rules.for_item({ code: "001", limit: 2, discount: 0.75 })
     end
     
     let(:percentaje_discount) do
-      discount_rules.percentaje({ configuration: { amount: 60.00, discount: 10.00 } })
+      discount_rules.for_percentaje({ amount: 60.00, discount: 10.00 })
     end
 
     let(:promotional_rules) { [item_discount, percentaje_discount] }
@@ -64,7 +64,7 @@ describe "Checkout" do
     end
 
     it "should drop price by factor on multiple items" do
-      checkout = Checkout.new([discount_rules.item({ configuration: { code: "001", limit: 2, discount: 0.5 } })])
+      checkout = Checkout.new([discount_rules.for_item({ code: "001", limit: 2, discount: 0.5 })])
 
       checkout.scan Item.new("001", "Lavender heard", 10)
       checkout.scan Item.new("001", "Lavender heard", 10)
@@ -98,4 +98,3 @@ describe "Checkout" do
     end
   end
 end
-

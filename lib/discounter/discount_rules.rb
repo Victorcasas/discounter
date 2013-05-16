@@ -5,23 +5,19 @@ module Discounter
   # them as custom discount rules
   class DiscountRules
     def simple(configuration)
-      -> { Proc.new { 0 } }
+      -> { 0 }
     end
 
-    def item(configuration)
+    def for_item(configuration)
       ->(args) do
-        ->(args) do
-          items = args[:checkout].items.select { |item| item.code == args[:configuration][:code] }
-          (items.count >= args[:configuration][:limit]) ? args[:configuration][:discount] * items.count : 0
-        end.call(args.merge(configuration))
+        items = args[:checkout].items.select { |item| item.code == configuration[:code] }
+        (items.count >= configuration[:limit]) ? configuration[:discount] * items.count : 0
       end
     end
 
-    def percentaje(configuration)
+    def for_percentaje(configuration)
       ->(args) do
-        ->(args) do
-          (args[:count] > args[:configuration][:amount]) ? args[:count] * args[:configuration][:discount] / 100.00 : 0
-        end.call(args.merge(configuration))
+        (args[:count] > configuration[:amount]) ? args[:count] * configuration[:discount] / 100.00 : 0
       end
     end
   end

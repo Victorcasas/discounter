@@ -77,8 +77,8 @@ And here it's an example:
   discount_rules = DiscountRules.new
 
   # Everyday discounts that you don't wanna retype every time
-  promotional_rules << discount_rules.item({ configuration: { code: "001", limit: 2, discount: 0.75 } })
-  promotional_rules << discount_rules.percentaje({ configuration: { amount: 60, discount: 10 } })
+  promotional_rules << discount_rules.for_item({ code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << discount_rules.for_percentaje({ amount: 60, discount: 10 })
 
   co = Checkout.new(promotional_rules)
 
@@ -98,14 +98,12 @@ If you want to build your own discount but dont want to make it permanent, then 
   discount_rules = DiscountRules.new
 
   # Everyday discounts that you don't wanna retype every time. Keep it DRY!
-  promotional_rules << discount_rules.item({ configuration: { code: "001", limit: 2, discount: 0.75 } })
-  promotional_rules << discount_rules.percentaje({ configuration: { amount: 60, discount: 10 } })
+  promotional_rules << discount_rules.for_item({ code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << discount_rules.for_percentaje({ amount: 60, discount: 10 })
 
   # This is a custom discount.
   custom_discount_rule = ->(args) do
-    ->(args) do
-      (args[:checkout].items.count > args[:configuration][:max]) ? 10 : 0
-    end.call(args.merge({ configuration: { max: 2 } }))
+      (args[:checkout].items.count > 2) ? 10 : 0
   end
 
   promotional_rules << custom_discount_rule
@@ -128,7 +126,7 @@ Now, how can I extend the DiscountRules? Well you have two options:
   module Discounter
     class DiscountRules
       def extended(configuration)
-        ->(args) { ->(args) { (args[:configuration][:is_it_enabled]) ? 100 : 0 }.call(args.merge(configuration)) }
+        ->(args) { (configuration[:is_it_enabled]) ? 100 : 0 }
       end
     end
   end
@@ -140,7 +138,7 @@ Now, how can I extend the DiscountRules? Well you have two options:
   discount_rules = DiscountRules.new
   
   # There, now you have a new rule!
-  promotional_rules << discount_rules.extended({ configuration: { is_it_enabled: true } })
+  promotional_rules << discount_rules.extended({ is_it_enabled: true })
 
   co = Checkout.new(promotional_rules)
 
@@ -161,7 +159,7 @@ Now, how can I extend the DiscountRules? Well you have two options:
   # More monkey patching on the way
   class ExtendedDiscountRules < DiscountRules
     def extended(configuration)
-      ->(args) { ->(args) { (args[:configuration][:is_it_enabled]) ? 100 : 0 }.call(args.merge(configuration)) }
+      ->(args) { (configuration[:is_it_enabled]) ? 100 : 0 }
     end
   end
   
@@ -169,11 +167,11 @@ Now, how can I extend the DiscountRules? Well you have two options:
   @discount_rules = ExtendedDiscountRules.new
 
   # Everyday discounts that you don't wanna retype every time
-  promotional_rules << @discount_rules.item({ configuration: { code: "001", limit: 2, discount: 0.75 } })
-  promotional_rules << @discount_rules.percentaje({ configuration: { amount: 60, discount: 10 }})
+  promotional_rules << @discount_rules.for_item({ code: "001", limit: 2, discount: 0.75 })
+  promotional_rules << @discount_rules.for_percentaje({ amount: 60, discount: 10 })
 
   # Le new discount rule
-  promotional_rules << @discount_rules.extended({ configuration: { is_it_enabled: true } })
+  promotional_rules << @discount_rules.extended({ is_it_enabled: true })
 
   co = Checkout.new(promotional_rules)
 
